@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Godfather Restaurant</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Cinzel:wght@400;600;900&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dark: #8a6a1e;
+    --black: #0a0704;
+    --dark: #120e08;
+    --dark2: #1e1710;
+    --cream: #f5ede0;
+    --red: #8b1a1a;
+    --red2: #c0392b;
+    --text: #e8dcc8;
+    --muted: #9e8c72;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  body { cursor: none; }
+  #cursor {
+    position: fixed; width: 18px; height: 18px;
+    border: 1.5px solid var(--gold); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transition: transform .15s ease, background .15s;
+    transform: translate(-50%,-50%);
+  }
+  #cursor.hover { transform: translate(-50%,-50%) scale(2.2); background: rgba(201,168,76,.15); }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: linear-gradient(to bottom, rgba(10,7,4,.98) 0%, rgba(10,7,4,0) 100%);
+    transition: background .4s;
+  }
+  nav.scrolled { background: rgba(10,7,4,.97) !important; border-bottom: 1px solid rgba(201,168,76,.2); }
+  .nav-logo { font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 4px; color: var(--gold); text-decoration: none; }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a { font-family: 'Cinzel', serif; font-size: .72rem; letter-spacing: 3px; color: var(--muted); text-decoration: none; transition: color .3s; }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-btn {
+    font-family: 'Cinzel', serif; font-size: .7rem; letter-spacing: 3px;
+    padding: 10px 24px; border: 1px solid var(--gold); color: var(--gold);
+    background: transparent; cursor: none; transition: all .3s;
+  }
+  .nav-btn:hover { background: var(--gold); color: var(--black); }
+
+  /* ── HERO ── */
+  #hero {
+    position: relative; height: 100vh; display: flex; align-items: center; justify-content: center;
+    overflow: hidden; text-align: center;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center top, #1a0f05 0%, #0a0704 60%),
+                url('https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=1600&q=80') center/cover no-repeat;
+    background-blend-mode: multiply;
+  }
+  .hero-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 80%, rgba(139,26,26,.3) 0%, transparent 70%);
+  }
+  .hero-particles { position: absolute; inset: 0; pointer-events: none; }
+  .particle {
+    position: absolute; width: 2px; height: 2px; background: var(--gold);
+    border-radius: 50%; opacity: 0;
+    animation: float-particle linear infinite;
+  }
+
+  @keyframes float-particle {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: .8; }
+    90% { opacity: .4; }
+    100% { transform: translateY(-20px) scale(1); opacity: 0; }
+  }
+
+  .hero-content { position: relative; z-index: 2; }
+
+  .hero-badge {
+    display: inline-block; font-family: 'Cinzel', serif; font-size: .65rem;
+    letter-spacing: 5px; color: var(--gold); border-top: 1px solid var(--gold);
+    border-bottom: 1px solid var(--gold); padding: 6px 20px; margin-bottom: 24px;
+    animation: fadeUp .8s ease both;
+  }
+
+  /* SVG LOGO */
+  .hero-logo-svg {
+    width: 220px; height: 220px; margin: 0 auto 20px;
+    animation: fadeUp .9s ease .1s both;
+    filter: drop-shadow(0 0 30px rgba(201,168,76,.4));
+  }
+
+  .hero-title {
+    font-family: 'Cinzel', serif; font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 900; letter-spacing: 8px; line-height: 1;
+    color: var(--gold); text-shadow: 0 0 60px rgba(201,168,76,.3);
+    animation: fadeUp 1s ease .2s both;
+  }
+  .hero-subtitle {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem); color: var(--muted);
+    margin: 16px 0 40px; letter-spacing: 2px;
+    animation: fadeUp 1s ease .35s both;
+  }
+  .hero-ctas { display: flex; gap: 16px; justify-content: center; animation: fadeUp 1s ease .5s both; }
+  .btn-gold {
+    font-family: 'Cinzel', serif; font-size: .72rem; letter-spacing: 3px;
+    padding: 16px 40px; background: var(--gold); color: var(--black);
+    border: none; cursor: none; transition: all .3s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(201,168,76,.4); }
+  .btn-outline {
+    font-family: 'Cinzel', serif; font-size: .72rem; letter-spacing: 3px;
+    padding: 16px 40px; background: transparent; color: var(--gold);
+    border: 1px solid var(--gold); cursor: none; transition: all .3s;
+  }
+  .btn-outline:hover { background: rgba(201,168,76,.1); transform: translateY(-2px); }
+  .hero-scroll {
+    position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    animation: fadeUp 1s ease .8s both;
+  }
+  .hero-scroll span { font-family: 'Cinzel', serif; font-size: .6rem; letter-spacing: 4px; color: var(--muted); }
+  .scroll-line { width: 1px; height: 50px; background: linear-gradient(to bottom, var(--gold), transparent); animation: scroll-pulse 2s ease infinite; }
+  @keyframes scroll-pulse { 0%,100%{opacity:.3;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(1.2)} }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION COMMON ── */
+  section { padding: 100px 48px; }
+  .section-header { text-align: center; margin-bottom: 64px; }
+  .section-label {
+    font-family: 'Cinzel', serif; font-size: .65rem; letter-spacing: 5px;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 16px; display: block;
+  }
+  .section-title {
+    font-family: 'Cinzel', serif; font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 600; color: var(--cream); line-height: 1.2;
+  }
+  .section-title span { color: var(--gold); }
+  .gold-divider {
+    display: flex; align-items: center; justify-content: center; gap: 16px; margin: 20px auto 0;
+  }
+  .gold-divider::before, .gold-divider::after {
+    content: ''; flex: 1; max-width: 100px; height: 1px; background: linear-gradient(to right, transparent, var(--gold));
+  }
+  .gold-divider::after { background: linear-gradient(to left, transparent, var(--gold)); }
+  .gold-divider span { color: var(--gold); font-size: 1.2rem; }
+
+  /* ── MENU ── */
+  #menu { background: var(--dark); }
+  .menu-tabs {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px;
+  }
+  .tab-btn {
+    font-family: 'Cinzel', serif; font-size: .65rem; letter-spacing: 3px;
+    padding: 10px 24px; border: 1px solid rgba(201,168,76,.3);
+    background: transparent; color: var(--muted); cursor: none; transition: all .3s;
+  }
+  .tab-btn.active, .tab-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,.08); }
+
+  .menu-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px;
+    max-width: 1300px; margin: 0 auto;
+  }
+  .dish-card {
+    background: linear-gradient(145deg, #1a1409, #120e08);
+    border: 1px solid rgba(201,168,76,.15);
+    overflow: hidden; transition: all .4s; position: relative;
+    cursor: none;
+  }
+  .dish-card:hover { border-color: rgba(201,168,76,.5); transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+  .dish-card:hover .dish-overlay { opacity: 1; }
+  .dish-img-wrap { position: relative; overflow: hidden; height: 220px; }
+  .dish-img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+  .dish-card:hover .dish-img { transform: scale(1.08); }
+  .dish-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,.6);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity .3s;
+  }
+  .add-btn {
+    font-family: 'Cinzel', serif; font-size: .65rem; letter-spacing: 3px;
+    padding: 12px 28px; background: var(--gold); color: var(--black);
+    border: none; cursor: none; transition: all .2s;
+  }
+  .add-btn:hover { background: var(--gold-light); }
+  .dish-badge {
+    position: absolute; top: 12px; right: 12px;
+    font-family: 'Cinzel', serif; font-size: .55rem; letter-spacing: 2px;
+    padding: 4px 10px; background: var(--red); color: var(--cream);
+  }
+  .dish-info { padding: 20px; }
+  .dish-name { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--cream); margin-bottom: 6px; }
+  .dish-desc { font-size: .95rem; color: var(--muted); line-height: 1.6; margin-bottom: 14px; font-style: italic; }
+  .dish-footer { display: flex; align-items: center; justify-content: space-between; }
+  .dish-price { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold); }
+  .dish-tag { font-size: .7rem; letter-spacing: 2px; color: var(--muted); font-family: 'Cinzel', serif; }
+
+  /* ── ADD DISH (OWNER) ── */
+  #add-dish { background: var(--black); }
+  .add-dish-form {
+    max-width: 700px; margin: 0 auto;
+    background: linear-gradient(145deg, #1a1409, #120e08);
+    border: 1px solid rgba(201,168,76,.2); padding: 48px;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+  .form-group label { font-family: 'Cinzel', serif; font-size: .65rem; letter-spacing: 3px; color: var(--gold); }
+  .form-group input, .form-group textarea, .form-group select {
+    background: rgba(255,255,255,.04); border: 1px solid rgba(201,168,76,.2);
+    color: var(--text); padding: 14px 16px; font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem; outline: none; transition: border .3s; cursor: none;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--gold); }
+  .form-group select option { background: var(--dark); }
+  .form-group textarea { resize: vertical; min-height: 90px; }
+  .img-upload-area {
+    border: 1px dashed rgba(201,168,76,.3); padding: 32px; text-align: center;
+    cursor: none; transition: all .3s;
+  }
+  .img-upload-area:hover { border-color: var(--gold); background: rgba(201,168,76,.04); }
+  .img-upload-area span { font-family: 'Cinzel', serif; font-size: .65rem; letter-spacing: 3px; color: var(--muted); }
+  #img-preview { max-width: 100%; max-height: 160px; margin-top: 12px; display: none; }
+
+  /* ── BILLING ── */
+  #billing { background: var(--dark); }
+  .billing-layout { display: grid; grid-template-columns: 1fr 380px; gap: 32px; max-width: 1300px; margin: 0 auto; align-items: start; }
+  .billing-items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+  .bill-item-card {
+    background: #1a1409; border: 1px solid rgba(201,168,76,.12);
+    padding: 16px; cursor: none; transition: all .3s;
+  }
+  .bill-item-card:hover { border-color: rgba(201,168,76,.4); }
+  .bill-item-card img { width: 100%; height: 130px; object-fit: cover; margin-bottom: 12px; }
+  .bill-item-name { font-family: 'Playfair Display', serif; font-size: 1rem; margin-bottom: 4px; }
+  .bill-item-price { font-family: 'Cinzel', serif; color: var(--gold); font-size: .9rem; margin-bottom: 10px; }
+  .qty-ctrl { display: flex; align-items: center; gap: 10px; }
+  .qty-btn {
+    width: 28px; height: 28px; border: 1px solid rgba(201,168,76,.4);
+    background: transparent; color: var(--gold); font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center; cursor: none; transition: all .2s;
+  }
+  .qty-btn:hover { background: var(--gold); color: var(--black); }
+  .qty-val { font-family: 'Cinzel', serif; font-size: .9rem; min-width: 20px; text-align: center; }
+
+  /* RECEIPT */
+  .receipt-panel {
+    background: linear-gradient(160deg, #1a1409, #0e0c07);
+    border: 1px solid rgba(201,168,76,.25); padding: 32px;
+    position: sticky; top: 100px;
+  }
+  .receipt-header { text-align: center; border-bottom: 1px solid rgba(201,168,76,.2); padding-bottom: 20px; margin-bottom: 20px; }
+  .receipt-title { font-family: 'Cinzel', serif; font-size: 1.1rem; letter-spacing: 4px; color: var(--gold); margin-bottom: 4px; }
+  .receipt-sub { font-size: .85rem; color: var(--muted); font-style: italic; }
+  .receipt-items { min-height: 160px; margin-bottom: 20px; }
+  .receipt-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .r-item-name { font-size: .95rem; flex: 1; }
+  .r-item-qty { font-family: 'Cinzel', serif; font-size: .8rem; color: var(--muted); margin: 0 12px; }
+  .r-item-price { font-family: 'Cinzel', serif; font-size: .9rem; color: var(--gold); }
+  .r-remove { background: none; border: none; color: var(--red2); cursor: none; font-size: 1rem; padding: 0 4px; }
+  .receipt-totals { border-top: 1px solid rgba(201,168,76,.3); padding-top: 16px; margin-bottom: 20px; }
+  .receipt-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: .9rem; }
+  .receipt-row.total { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold); font-weight: 700; margin-top: 8px; border-top: 1px solid rgba(201,168,76,.2); padding-top: 8px; }
+  .customer-input { width: 100%; background: rgba(255,255,255,.04); border: 1px solid rgba(201,168,76,.2); color: var(--text); padding: 10px 14px; font-family: 'Cormorant Garamond', serif; font-size: .95rem; outline: none; margin-bottom: 10px; }
+  .print-btn {
+    width: 100%; font-family: 'Cinzel', serif; font-size: .72rem; letter-spacing: 3px;
+    padding: 16px; background: var(--gold); color: var(--black); border: none; cursor: none; transition: all .3s;
+  }
+  .print-btn:hover { background: var(--gold-light); }
+  .clear-btn {
+    width: 100%; font-family: 'Cinzel', serif; font-size: .65rem; letter-spacing: 3px;
+    padding: 10px; background: transparent; color: var(--muted); border: 1px solid rgba(255,255,255,.1); cursor: none; transition: all .3s; margin-top: 8px;
+  }
+  .clear-btn:hover { color: var(--red2); border-color: var(--red2); }
+  .empty-bill { text-align: center; color: var(--muted); font-style: italic; padding: 32px 0; font-size: 1rem; }
+
+  /* ── PRINT STYLES ── */
+  #print-overlay {
+    display: none; position: fixed; inset: 0; z-index: 5000;
+    background: rgba(0,0,0,.85); align-items: center; justify-content: center;
+  }
+  #print-overlay.show { display: flex; }
+  .print-receipt {
+    background: #fff; color: #222; padding: 40px; width: 380px; max-height: 90vh; overflow-y: auto;
+    font-family: 'Courier New', monospace; font-size: .85rem;
+    box-shadow: 0 20px 60px rgba(0,0,0,.8);
+  }
+  .print-receipt h2 { text-align: center; font-size: 1.4rem; letter-spacing: 2px; margin-bottom: 4px; }
+  .print-receipt .pr-sub { text-align: center; font-size: .75rem; color: #666; margin-bottom: 20px; }
+  .print-receipt .pr-divider { border: none; border-top: 1px dashed #999; margin: 12px 0; }
+  .print-receipt .pr-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .print-receipt .pr-total { font-weight: bold; font-size: 1rem; border-top: 2px solid #222; padding-top: 8px; margin-top: 8px; }
+  .print-receipt .pr-footer { text-align: center; font-size: .72rem; color: #666; margin-top: 20px; }
+  .print-actions { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
+  .print-actions button {
+    font-family: 'Cinzel', serif; font-size: .65rem; letter-spacing: 3px;
+    padding: 12px 28px; cursor: pointer;
+  }
+  .print-actions .do-print { background: #222; color: #fff; border: none; }
+  .print-actions .close-print { background: transparent; border: 1px solid #999; color: #555; }
+
+  /* ── GALLERY ── */
+  #gallery { background: var(--black); overflow: hidden; }
+  .gallery-track-wrap { overflow: hidden; margin: 0 -48px; position: relative; }
+  .gallery-track-wrap::before, .gallery-track-wrap::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 120px; z-index: 2;
+    pointer-events: none;
+  }
+  .gallery-track-wrap::before { left: 0; background: linear-gradient(to right, var(--black), transparent); }
+  .gallery-track-wrap::after { right: 0; background: linear-gradient(to left, var(--black), transparent); }
+  .gallery-track {
+    display: flex; gap: 20px; width: max-content;
+    animation: scroll-gallery 40s linear infinite;
+  }
+  .gallery-track:hover { animation-play-state: paused; }
+  .gallery-item { width: 280px; height: 200px; overflow: hidden; flex-shrink: 0; position: relative; }
+  .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+  .gallery-item:hover img { transform: scale(1.1); }
+  @keyframes scroll-gallery {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── ABOUT ── */
+  #about {
+    background: var(--dark); display: grid; grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: center; padding: 100px 80px;
+  }
+  .about-img-stack { position: relative; height: 500px; }
+  .about-img-main {
+    position: absolute; right: 0; top: 0; width: 80%; height: 80%;
+    object-fit: cover; border: 3px solid rgba(201,168,76,.3);
+  }
+  .about-img-accent {
+    position: absolute; left: 0; bottom: 0; width: 55%; height: 55%;
+    object-fit: cover; border: 3px solid rgba(201,168,76,.5);
+    box-shadow: 0 20px 60px rgba(0,0,0,.7);
+  }
+  .about-gold-block {
+    position: absolute; top: 60%; left: 52%; transform: translate(-50%,-50%);
+    background: var(--gold); padding: 20px 24px; text-align: center;
+    z-index: 2; box-shadow: 0 8px 30px rgba(0,0,0,.5);
+  }
+  .about-gold-block strong { display: block; font-family: 'Cinzel', serif; font-size: 2.2rem; color: var(--black); line-height: 1; }
+  .about-gold-block span { font-family: 'Cinzel', serif; font-size: .6rem; letter-spacing: 3px; color: var(--dark); }
+  .about-text h2 { font-family: 'Cinzel', serif; font-size: 2.5rem; color: var(--cream); margin-bottom: 20px; }
+  .about-text p { font-size: 1.1rem; color: var(--muted); line-height: 1.9; margin-bottom: 20px; font-style: italic; }
+  .about-stats { display: flex; gap: 32px; margin-top: 36px; }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Cinzel', serif; font-size: 2.2rem; color: var(--gold); }
+  .stat-label { font-size: .75rem; letter-spacing: 2px; color: var(--muted); font-family: 'Cinzel', serif; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--black); border-top: 1px solid rgba(201,168,76,.15);
+    padding: 80px 80px 40px;
+  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 64px; }
+  .footer-brand h3 { font-family: 'Cinzel', serif; font-size: 1.6rem; color: var(--gold); margin-bottom: 12px; letter-spacing: 3px; }
+  .footer-brand p { font-size: 1rem; color: var(--muted); line-height: 1.8; font-style: italic; max-width: 280px; }
+  .footer-col h4 { font-family: 'Cinzel', serif; font-size: .7rem; letter-spacing: 4px; color: var(--gold); margin-bottom: 20px; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col ul li a { color: var(--muted); text-decoration: none; font-size: .95rem; transition: color .3s; }
+  .footer-col ul li a:hover { color: var(--cream); }
+  .footer-col address { font-style: normal; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col address p { color: var(--muted); font-size: .95rem; display: flex; gap: 10px; align-items: flex-start; }
+  .footer-col address p span { color: var(--gold); font-size: 1rem; }
+  .hours-list { display: flex; flex-direction: column; gap: 8px; }
+  .hours-row { display: flex; justify-content: space-between; font-size: .9rem; color: var(--muted); gap: 16px; }
+  .hours-row .day { font-family: 'Cinzel', serif; font-size: .7rem; letter-spacing: 1px; }
+  .hours-row .time { color: var(--cream); font-style: italic; }
+  .footer-bottom { border-top: 1px solid rgba(201,168,76,.1); padding-top: 32px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-bottom p { font-size: .85rem; color: var(--muted); }
+  .social-links { display: flex; gap: 16px; }
+  .social-link {
+    width: 36px; height: 36px; border: 1px solid rgba(201,168,76,.3);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); text-decoration: none; font-size: .8rem; transition: all .3s;
+    font-family: 'Cinzel', serif; cursor: none;
+  }
+  .social-link:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 32px; right: 32px; z-index: 4000;
+    background: var(--dark2); border: 1px solid var(--gold);
+    padding: 14px 24px; font-family: 'Cinzel', serif; font-size: .7rem;
+    letter-spacing: 2px; color: var(--gold); transform: translateY(80px); opacity: 0;
+    transition: all .4s; pointer-events: none;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal { opacity: 0; transform: translateY(40px); transition: all .7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    section { padding: 70px 24px; }
+    #about { grid-template-columns: 1fr; padding: 70px 24px; }
+    .billing-layout { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a class="nav-logo" href="#">THE GODFATHER</a>
+  <ul class="nav-links">
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#billing">Order</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#about">Our Story</a></li>
+    <li><a href="#add-dish">Chef's Corner</a></li>
+  </ul>
+  <button class="nav-btn" onclick="document.getElementById('billing').scrollIntoView({behavior:'smooth'})">BOOK TABLE</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-particles" id="particles"></div>
+  <div class="hero-content">
+    <div class="hero-badge">EST. 2026 · Puduppatti</div>
+    <!-- SVG LOGO -->
+    <svg class="hero-logo-svg" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="logoGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#e8c97a"/>
+          <stop offset="60%" stop-color="#c9a84c"/>
+          <stop offset="100%" stop-color="#8a6a1e"/>
+        </radialGradient>
+        <radialGradient id="shieldGrad" cx="50%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#1e1710"/>
+          <stop offset="100%" stop-color="#0a0704"/>
+        </radialGradient>
+      </defs>
+      <!-- Outer ring -->
+      <circle cx="110" cy="110" r="106" fill="none" stroke="url(#logoGrad)" stroke-width="2"/>
+      <circle cx="110" cy="110" r="100" fill="none" stroke="url(#logoGrad)" stroke-width=".5" stroke-dasharray="4 6"/>
+      <!-- Shield -->
+      <path d="M110 20 L175 55 L175 130 Q175 175 110 200 Q45 175 45 130 L45 55 Z" fill="url(#shieldGrad)" stroke="url(#logoGrad)" stroke-width="2"/>
+      <!-- Inner shield lines -->
+      <path d="M110 30 L165 60 L165 128 Q165 168 110 190 Q55 168 55 128 L55 60 Z" fill="none" stroke="url(#logoGrad)" stroke-width=".8" opacity=".5"/>
+      <!-- Crown -->
+      <path d="M82 78 L82 58 L94 68 L110 55 L126 68 L138 58 L138 78 Z" fill="url(#logoGrad)"/>
+      <!-- Crown gems -->
+      <circle cx="82" cy="78" r="4" fill="#c0392b"/>
+      <circle cx="110" cy="55" r="5" fill="#c0392b"/>
+      <circle cx="138" cy="78" r="4" fill="#c0392b"/>
+      <!-- G letter -->
+      <text x="110" y="130" text-anchor="middle" font-family="Cinzel, serif" font-size="52" font-weight="900" fill="url(#logoGrad)">G</text>
+      <!-- Bottom text -->
+      <text x="110" y="160" text-anchor="middle" font-family="Cinzel, serif" font-size="9" letter-spacing="4" fill="url(#logoGrad)">GODFATHER</text>
+      <!-- Decorative lines -->
+      <line x1="60" y1="165" x2="88" y2="165" stroke="url(#logoGrad)" stroke-width="1"/>
+      <line x1="132" y1="165" x2="160" y2="165" stroke="url(#logoGrad)" stroke-width="1"/>
+      <circle cx="110" cy="165" r="2" fill="url(#logoGrad)"/>
+      <!-- Laurel leaves (simplified) -->
+      <path d="M58 110 Q52 105 56 98 Q60 105 58 110Z" fill="url(#logoGrad)" opacity=".7"/>
+      <path d="M58 110 Q50 108 51 100 Q57 106 58 110Z" fill="url(#logoGrad)" opacity=".5"/>
+      <path d="M162 110 Q168 105 164 98 Q160 105 162 110Z" fill="url(#logoGrad)" opacity=".7"/>
+      <path d="M162 110 Q170 108 169 100 Q163 106 162 110Z" fill="url(#logoGrad)" opacity=".5"/>
+    </svg>
+
+    <h1 class="hero-title">THE GODFATHER</h1>
+    <p class="hero-subtitle">An Offer You Can't Refuse · Authentic Biryani & Royal Cuisine</p>
+    <div class="hero-ctas">
+      <button class="btn-gold" onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})">EXPLORE MENU</button>
+      <button class="btn-outline" onclick="document.getElementById('billing').scrollIntoView({behavior:'smooth'})">ORDER NOW</button>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>SCROLL</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- GALLERY STRIP -->
+<section id="gallery" style="padding:60px 0;">
+  <div class="section-header reveal">
+    <span class="section-label">Visual Feast</span>
+    <h2 class="section-title">A Glimpse of <span>Our World</span></h2>
+    <div class="gold-divider"><span>✦</span></div>
+  </div>
+  <div class="gallery-track-wrap">
+    <div class="gallery-track" id="galleryTrack">
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=80" alt="Biryani"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=600&q=80" alt="Mutton"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1600803907087-f56d462fd26b?w=600&q=80" alt="Dish"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1574484284002-952d92456975?w=600&q=80" alt="Food"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80" alt="Kebab"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80" alt="Plating"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80" alt="Steak"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80" alt="Curry"></div>
+      <!-- Duplicate for infinite scroll -->
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=80" alt="Biryani"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=600&q=80" alt="Mutton"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1600803907087-f56d462fd26b?w=600&q=80" alt="Dish"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1574484284002-952d92456975?w=600&q=80" alt="Food"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80" alt="Kebab"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80" alt="Plating"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80" alt="Steak"></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80" alt="Curry"></div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu">
+  <div class="section-header reveal">
+    <span class="section-label">Our Specialties</span>
+    <h2 class="section-title">The <span>Royal Menu</span></h2>
+    <div class="gold-divider"><span>✦</span></div>
+  </div>
+
+  <div class="menu-tabs reveal">
+    <button class="tab-btn active" onclick="filterMenu('all', this)">ALL DISHES</button>
+    <button class="tab-btn" onclick="filterMenu('biryani', this)">BIRYANI</button>
+    <button class="tab-btn" onclick="filterMenu('mutton', this)">MUTTON</button>
+    <button class="tab-btn" onclick="filterMenu('sides', this)">SIDE DISHES</button>
+    <button class="tab-btn" onclick="filterMenu('drinks', this)">BEVERAGES</button>
+  </div>
+
+  <div class="menu-grid" id="menuGrid"></div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-img-stack reveal">
+    <img class="about-img-main" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80" alt="Restaurant">
+    <img class="about-img-accent" src="https://images.unsplash.com/photo-1581349485608-9469926a8e5e?w=600&q=80" alt="Chef">
+    <div class="about-gold-block">
+      <strong>10+</strong>
+      <span>YEARS OF MASTERY</span>
+    </div>
+  </div>
+  <div class="about-text reveal">
+    <span class="section-label">Our Legacy</span>
+    <h2>The Art of Royal Cuisine</h2>
+    <p>Born in the heart of Coimbatore, The Godfather brings together time-honored recipes and royal cooking traditions passed down through generations of master chefs.</p>
+    <p>Every grain of rice in our biryani tells a story — slow-cooked in sealed vessels with hand-ground spices, saffron from Kashmir, and meat sourced fresh every morning.</p>
+    <p>We don't just serve food. We make you an offer you simply cannot refuse.</p>
+    <div class="about-stats">
+      <div class="stat"><div class="stat-num">50+</div><div class="stat-label">RECIPES</div></div>
+      <div class="stat"><div class="stat-num">1K+</div><div class="stat-label">DAILY GUESTS</div></div>
+      <div class="stat"><div class="stat-num">4.9★</div><div class="stat-label">RATING</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- BILLING -->
+<section id="billing">
+  <div class="section-header reveal">
+    <span class="section-label">Place Your Order</span>
+    <h2 class="section-title">Your <span>Royal Bill</span></h2>
+    <div class="gold-divider"><span>✦</span></div>
+    <p style="color:var(--muted);margin-top:12px;font-style:italic;">Select items, adjust quantity, then print your bill</p>
+  </div>
+
+  <div class="billing-layout">
+    <div class="billing-items-grid" id="billingGrid"></div>
+
+    <div class="receipt-panel reveal">
+      <div class="receipt-header">
+        <div class="receipt-title">THE GODFATHER</div>
+        <div class="receipt-sub">Puduppatti · Aranthangi. 2026</div>
+      </div>
+      <input class="customer-input" id="customerName" placeholder="Customer Name (optional)">
+      <input class="customer-input" id="tableNum" placeholder="Table Number (optional)">
+      <div class="receipt-items" id="receiptItems">
+        <div class="empty-bill">Your bill is empty.<br>Select dishes to begin.</div>
+      </div>
+      <div class="receipt-totals" id="receiptTotals" style="display:none">
+        <div class="receipt-row"><span>Subtotal</span><span id="subtotal">₹0</span></div>
+        <div class="receipt-row"><span>GST (5%)</span><span id="gstAmt">₹0</span></div>
+        <div class="receipt-row total"><span>TOTAL</span><span id="totalAmt">₹0</span></div>
+      </div>
+      <button class="print-btn" onclick="showPrint()">🖨 PRINT BILL</button>
+      <button class="clear-btn" onclick="clearBill()">CLEAR ORDER</button>
+    </div>
+  </div>
+</section>
+
+<!-- ADD DISH -->
+<section id="add-dish">
+  <div class="section-header reveal">
+    <span class="section-label">Chef's Corner</span>
+    <h2 class="section-title">Add a <span>New Dish</span></h2>
+    <div class="gold-divider"><span>✦</span></div>
+    <p style="color:var(--muted);margin-top:12px;font-style:italic;">Owner panel — introduce a new creation to the menu</p>
+  </div>
+  <div class="add-dish-form reveal">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Dish Name *</label>
+        <input type="text" id="newName" placeholder="e.g. Royal Mutton Biryani">
+      </div>
+      <div class="form-group">
+        <label>Price (₹) *</label>
+        <input type="number" id="newPrice" placeholder="e.g. 320">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Category *</label>
+        <select id="newCategory">
+          <option value="biryani">Biryani</option>
+          <option value="mutton">Mutton</option>
+          <option value="sides">Side Dish</option>
+          <option value="drinks">Beverage</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tag</label>
+        <input type="text" id="newTag" placeholder="e.g. Chef's Special, New">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Description *</label>
+      <textarea id="newDesc" placeholder="Describe the dish..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Dish Image</label>
+      <div class="img-upload-area" onclick="document.getElementById('imgFile').click()">
+        <span>CLICK TO UPLOAD IMAGE</span>
+        <img id="img-preview" alt="preview">
+      </div>
+      <input type="file" id="imgFile" accept="image/*" style="display:none" onchange="previewImg(this)">
+    </div>
+    <button class="btn-gold" style="width:100%;font-size:.8rem;letter-spacing:3px;padding:18px;cursor:none;" onclick="addDish()">ADD TO MENU</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid reveal">
+    <div class="footer-brand">
+      <h3>THE GODFATHER</h3>
+      <p>An offer you can't refuse. Experience the royal cuisine of Coimbatore, where every meal is a masterpiece crafted with passion, tradition, and the finest ingredients.</p>
+      <div style="margin-top:20px;display:flex;gap:16px;align-items:center;">
+        <div style="width:40px;height:1px;background:var(--gold);"></div>
+        <span style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:3px;color:var(--gold);">SINCE 2024</span>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>NAVIGATE</h4>
+      <ul>
+        <li><a href="#menu">Our Menu</a></li>
+        <li><a href="#billing">Order Now</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#about">Our Story</a></li>
+        <li><a href="#add-dish">Chef's Corner</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>CONTACT US</h4>
+      <address>
+        <p><span>📍</span>123 Puduppatti,<br>Aranthangi, Pudukkottai,<br>Tamil Nadu — 622202</p>
+        <p><span>📞</span>+91 93426 67350</p>
+        <p><span>✉</span>Biriyani@godfather.restaurant</p>
+      </address>
+    </div>
+    <div class="footer-col">
+      <h4>DINING HOURS</h4>
+      <div class="hours-list">
+        <div class="hours-row"><span class="day">MON–FRI</span><span class="time">11AM – 11PM</span></div>
+        <div class="hours-row"><span class="day">SAT</span><span class="time">10AM – 11:30PM</span></div>
+        <div class="hours-row"><span class="day">SUNDAY</span><span class="time">10AM – 10:30PM</span></div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(201,168,76,.15);">
+          <p style="font-size:.8rem;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:2px;margin-bottom:6px;">LUNCH</p>
+          <p style="font-size:.9rem;color:var(--muted);font-style:italic;">11 AM – 3:30 PM</p>
+          <p style="font-size:.8rem;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:2px;margin-top:10px;margin-bottom:6px;">DINNER</p>
+          <p style="font-size:.9rem;color:var(--muted);font-style:italic;">6:30 PM – Close</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 The Godfather Restaurant · All Rights Reserved · Coimbatore</p>
+    <div class="social-links">
+      <a class="social-link" href="#">f</a>
+      <a class="social-link" href="#">in</a>
+      <a class="social-link" href="#">ig</a>
+      <a class="social-link" href="#">yt</a>
+    </div>
+  </div>
+</footer>
+
+<!-- PRINT OVERLAY -->
+<div id="print-overlay">
+  <div>
+    <div class="print-receipt" id="printContent"></div>
+    <div class="print-actions">
+      <button class="do-print" onclick="doPrint()">🖨 PRINT</button>
+      <button class="close-print" onclick="closePrint()">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── CURSOR ──
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+document.querySelectorAll('button, a, .dish-card, .bill-item-card, .tab-btn, .img-upload-area, .qty-btn, .r-remove, .social-link').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+});
+
+// ── NAV SCROLL ──
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// ── PARTICLES ──
+const pWrap = document.getElementById('particles');
+for (let i = 0; i < 30; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  p.style.cssText = `left:${Math.random()*100}%;width:${Math.random()*3+1}px;height:${Math.random()*3+1}px;animation-duration:${Math.random()*8+6}s;animation-delay:${Math.random()*8}s`;
+  pWrap.appendChild(p);
+}
+
+// ── DATA ──
+const initialDishes = [
+  { id:1, name:'Hyderabadi Dum Biryani', price:180, category:'biryani', desc:'Slow-cooked basmati rice layered with tender chicken, saffron & whole spices.', badge:'BESTSELLER', img:'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=80' },
+  { id:2, name:'Mutton Biryani', price:260, category:'biryani', desc:'Royal Rajasthani-style mutton with aged basmati and fried onions.', badge:'CHEF\'S PICK', img:'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=600&q=80' },
+  { id:3, name:'Prawn Biryani', price:320, category:'biryani', desc:'Coastal-style tiger prawns biryani with coconut and curry leaves.', badge:'', img:'https://images.unsplash.com/photo-1574484284002-952d92456975?w=600&q=80' },
+  { id:4, name:'Veg Biryani', price:120, category:'biryani', desc:'Garden vegetables & paneer with aged basmati and saffron milk.', badge:'', img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80' },
+  { id:5, name:'Mutton Rogan Josh', price:400, category:'mutton', desc:'Slow-braised Kashmiri mutton in bold Rogan Josh gravy — deeply aromatic.', badge:'SPICY', img:'https://images.unsplash.com/photo-1600803907087-f56d462fd26b?w=600&q=80' },
+  { id:6, name:'Mutton Keema Masala', price:300, category:'mutton', desc:'Minced mutton cooked with aromatic spices, peas and fresh coriander.', badge:'', img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80' },
+  { id:7, name:'Seekh Kebab', price:310, category:'mutton', desc:'Charcoal-grilled minced lamb skewers with mint chutney and onion rings.', badge:'GRILLED', img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80' },
+  { id:8, name:'Raita', price:60, category:'sides', desc:'Cooling yogurt with cucumber, roasted cumin and coriander.', badge:'', img:'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80' },
+  { id:9, name:'Mirchi Ka Salan', price:80, category:'sides', desc:'Classic Hyderabadi chilli gravy — the perfect biryani companion.', badge:'CLASSIC', img:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80' },
+  { id:10, name:'Butter Naan', price:45, category:'sides', desc:'Tandoor-fresh naan brushed with real butter and garlic.', badge:'', img:'https://images.unsplash.com/photo-1581349485608-9469926a8e5e?w=600&q=80' },
+  { id:11, name:'Royal Lassi', price:90, category:'drinks', desc:'Thick, sweet Punjab-style lassi with rose and pistachio.', badge:'SWEET', img:'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=600&q=80' },
+  { id:12, name:'Masala Chai', price:40, category:'drinks', desc:'Strong cardamom-ginger chai brewed in the old-fashioned way.', badge:'', img:'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&q=80' },
+];
+
+let dishes = JSON.parse(localStorage.getItem('gf_dishes') || JSON.stringify(initialDishes));
+let cart = {};
+let activeFilter = 'all';
+
+function saveDishes() { localStorage.setItem('gf_dishes', JSON.stringify(dishes)); }
+
+// ── RENDER MENU ──
+function renderMenu(filter) {
+  const grid = document.getElementById('menuGrid');
+  const filtered = filter === 'all' ? dishes : dishes.filter(d => d.category === filter);
+  grid.innerHTML = filtered.map(d => `
+    <div class="dish-card" data-cat="${d.category}">
+      <div class="dish-img-wrap">
+        <img class="dish-img" src="${d.img}" alt="${d.name}" onerror="this.src='https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80'">
+        <div class="dish-overlay">
+          <button class="add-btn" onclick="addToCart(${d.id})">ADD TO ORDER</button>
+        </div>
+        ${d.badge ? `<div class="dish-badge">${d.badge}</div>` : ''}
+      </div>
+      <div class="dish-info">
+        <div class="dish-name">${d.name}</div>
+        <div class="dish-desc">${d.desc}</div>
+        <div class="dish-footer">
+          <div class="dish-price">₹${d.price}</div>
+          <div class="dish-tag">${d.category.toUpperCase()}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterMenu(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMenu(cat);
+}
+
+// ── BILLING GRID ──
+function renderBillingGrid() {
+  const grid = document.getElementById('billingGrid');
+  grid.innerHTML = dishes.map(d => `
+    <div class="bill-item-card">
+      <img src="${d.img}" alt="${d.name}" onerror="this.src='https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80'">
+      <div class="bill-item-name">${d.name}</div>
+      <div class="bill-item-price">₹${d.price}</div>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="changeQty(${d.id},-1)">−</button>
+        <span class="qty-val" id="qty-${d.id}">${cart[d.id]||0}</span>
+        <button class="qty-btn" onclick="changeQty(${d.id},1)">+</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addToCart(id) {
+  cart[id] = (cart[id]||0) + 1;
+  updateReceipt();
+  renderBillingGrid();
+  showToast('Added to order ✓');
+}
+
+function changeQty(id, delta) {
+  cart[id] = Math.max(0, (cart[id]||0) + delta);
+  if (cart[id] === 0) delete cart[id];
+  const qEl = document.getElementById('qty-'+id);
+  if (qEl) qEl.textContent = cart[id]||0;
+  updateReceipt();
+}
+
+function removeFromCart(id) {
+  delete cart[id];
+  const qEl = document.getElementById('qty-'+id);
+  if (qEl) qEl.textContent = 0;
+  updateReceipt();
+}
+
+function updateReceipt() {
+  const ri = document.getElementById('receiptItems');
+  const rt = document.getElementById('receiptTotals');
+  const keys = Object.keys(cart);
+  if (!keys.length) {
+    ri.innerHTML = '<div class="empty-bill">Your bill is empty.<br>Select dishes to begin.</div>';
+    rt.style.display = 'none'; return;
+  }
+  rt.style.display = 'block';
+  let sub = 0;
+  ri.innerHTML = keys.map(id => {
+    const d = dishes.find(x => x.id == id);
+    if (!d) return '';
+    const tot = d.price * cart[id];
+    sub += tot;
+    return `<div class="receipt-item">
+      <span class="r-item-name">${d.name}</span>
+      <span class="r-item-qty">×${cart[id]}</span>
+      <span class="r-item-price">₹${tot}</span>
+      <button class="r-remove" onclick="removeFromCart(${id})" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+  const gst = Math.round(sub * 0.05);
+  const total = sub + gst;
+  document.getElementById('subtotal').textContent = '₹'+sub;
+  document.getElementById('gstAmt').textContent = '₹'+gst;
+  document.getElementById('totalAmt').textContent = '₹'+total;
+}
+
+function clearBill() { cart = {}; renderBillingGrid(); updateReceipt(); showToast('Order cleared'); }
+
+// ── PRINT ──
+function showPrint() {
+  const keys = Object.keys(cart);
+  if (!keys.length) { showToast('Add items to bill first!'); return; }
+  const name = document.getElementById('customerName').value || 'Valued Guest';
+  const table = document.getElementById('tableNum').value || '—';
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  const timeStr = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  let sub = 0;
+  const itemRows = keys.map(id => {
+    const d = dishes.find(x => x.id == id);
+    if (!d) return '';
+    const tot = d.price * cart[id];
+    sub += tot;
+    return `<div class="pr-row"><span>${d.name} ×${cart[id]}</span><span>₹${tot}</span></div>`;
+  }).join('');
+  const gst = Math.round(sub*0.05), total = sub+gst;
+  document.getElementById('printContent').innerHTML = `
+    <h2>THE GODFATHER</h2>
+    <p class="pr-sub">Coimbatore · Est. 2024<br>+91 98765 43210</p>
+    <hr class="pr-divider">
+    <div class="pr-row"><span>Customer:</span><span>${name}</span></div>
+    <div class="pr-row"><span>Table:</span><span>${table}</span></div>
+    <div class="pr-row"><span>Date:</span><span>${dateStr}</span></div>
+    <div class="pr-row"><span>Time:</span><span>${timeStr}</span></div>
+    <hr class="pr-divider">
+    ${itemRows}
+    <hr class="pr-divider">
+    <div class="pr-row"><span>Subtotal</span><span>₹${sub}</span></div>
+    <div class="pr-row"><span>GST (5%)</span><span>₹${gst}</span></div>
+    <div class="pr-row pr-total"><span>TOTAL</span><span>₹${total}</span></div>
+    <hr class="pr-divider">
+    <p class="pr-footer">Thank you for dining with us!<br>We hope to see you again soon.<br><em>"An offer you can't refuse"</em></p>
+  `;
+  document.getElementById('print-overlay').classList.add('show');
+}
+
+function doPrint() { window.print(); }
+function closePrint() { document.getElementById('print-overlay').classList.remove('show'); }
+
+// ── ADD DISH ──
+let imgDataUrl = '';
+function previewImg(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    imgDataUrl = e.target.result;
+    const prev = document.getElementById('img-preview');
+    prev.src = imgDataUrl; prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function addDish() {
+  const name = document.getElementById('newName').value.trim();
+  const price = parseInt(document.getElementById('newPrice').value);
+  const category = document.getElementById('newCategory').value;
+  const desc = document.getElementById('newDesc').value.trim();
+  const tag = document.getElementById('newTag').value.trim();
+  if (!name || !price || !desc) { showToast('Please fill all required fields!'); return; }
+  const newDish = {
+    id: Date.now(), name, price, category, desc, badge: tag,
+    img: imgDataUrl || 'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80'
+  };
+  dishes.push(newDish);
+  saveDishes();
+  renderMenu(activeFilter);
+  renderBillingGrid();
+  // Reset form
+  document.getElementById('newName').value = '';
+  document.getElementById('newPrice').value = '';
+  document.getElementById('newDesc').value = '';
+  document.getElementById('newTag').value = '';
+  document.getElementById('imgFile').value = '';
+  document.getElementById('img-preview').style.display = 'none';
+  imgDataUrl = '';
+  showToast(`"${name}" added to menu! ✓`);
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── PRINT MEDIA ──
+const printStyle = document.createElement('style');
+printStyle.innerHTML = `@media print { body > *:not(#print-overlay) { display:none!important; } #print-overlay { display:flex!important; position:static!important; background:white!important; } .print-actions { display:none!important; } .print-receipt { box-shadow:none!important; } }`;
+document.head.appendChild(printStyle);
+
+// ── INIT ──
+renderMenu('all');
+renderBillingGrid();
+</script>
+</body>
+</html>
